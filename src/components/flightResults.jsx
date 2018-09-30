@@ -51,7 +51,7 @@ class FlightResults extends Component {
         aircraft: "Boeing 787-900 Dreamliner"
       },
       {
-        id: "0L4AX",
+        id: "0L4AX-CREWSTANDBY",
         from: "LAX",
         to: "SFO",
         depTime: "4:30AM",
@@ -59,7 +59,18 @@ class FlightResults extends Component {
         price: 0,
         aircraft: "Boeing 737-400"
       }
-    ]
+    ],
+    destinations: ["All"],
+    aircrafts: [
+      "Boeing 737-400",
+      "Boeing 787-900 Dreamliner",
+      "Airbus A330",
+      "Airbus A320-200",
+      "Airbus A380"
+    ],
+    //Mutable version of flights for filtering
+    mFlights: [],
+    selectedDst: "All"
   };
   //Don't judge me for creating to many methods in a rush pls :(
   handleInputChange = e => {
@@ -89,37 +100,77 @@ class FlightResults extends Component {
       alert("A flight with the same id exsits");
     } else {
       flights.push(nFlight);
-      this.setState({ flights });
+      this.setState({ flights }, this.updateDestinations);
+      this.setState({
+        nFlight: {
+          id: "",
+          from: "",
+          to: "",
+          depTime: "",
+          landTime: "",
+          price: 0,
+          aircraft: "Boeing 737-400"
+        }
+      });
+      this.updateFilterFlights(nFlight);
       this.addFlightForm.reset();
     }
+    return true;
   };
-  getDestinations = () => {
-    let destList = ["TEST"];
-    /*this.state.flights.map(flight => {
-      if (!destList.includes(flight.to)) {
-        destList.push(flight.to);
+  updateFilterFlights = flight => {
+    if (flight.to === this.state.selectedDst) {
+      const mFlights = [...this.state.mFlights];
+      mFlights.push(flight);
+      this.setState({ mFlights });
+    }
+  };
+  updateDestinations = () => {
+    let destinations = [...this.state.destinations];
+    this.state.flights.map(flight => {
+      if (!destinations.includes(flight.to)) {
+        destinations.push(flight.to);
       }
-    });*/
-    return destList;
+      return true;
+    });
+    this.setState({ destinations });
+    return true;
   };
+  handleFilter = e => {
+    if (e.target.value === "All") {
+      this.setState({ mFlights: [...this.state.flights] });
+    } else {
+      const mFlights = [...this.state.flights].filter(
+        flight => flight.to === e.target.value
+      );
+      this.setState({ mFlights });
+    }
+    this.setState({ selectedDst: e.target.value });
+  };
+  componentDidMount() {
+    this.updateDestinations();
+    this.setState({ mFlights: [...this.state.flights] });
+  }
   render() {
     if (this.props.flights !== undefined) {
       this.setState({ flights: this.props.flights });
     }
+    //this.updateDestinations();
     return (
       <React.Fragment>
         <div className="container">
           <div className="row">
             <h1 className="center">Flights List:</h1>
-            <select className="float-right">
-              {this.getDestinations().map(flightDestination => {
-                <option value={flightDestination}>{flightDestination}</option>;
-              })}
+            <select className="float-right" onChange={this.handleFilter}>
+              {this.state.destinations.map(flightDestination => (
+                <option key={flightDestination} value={flightDestination}>
+                  {flightDestination}
+                </option>
+              ))}
             </select>
           </div>
           <div className="row">
             <div className="list-group m-1 left col-sm">
-              {this.state.flights.map(result => (
+              {this.state.mFlights.map(result => (
                 <FlightResult key={result.id} flightResult={result} />
               ))}
             </div>
@@ -195,10 +246,11 @@ class FlightResults extends Component {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Price(USD$)</label>
+                  <label>Price(USD$ - Economy)</label>
                   <input
                     name="price"
                     type="number"
+                    min="0"
                     className="form-control"
                     id="price"
                     placeholder="Enter price"
@@ -206,6 +258,16 @@ class FlightResults extends Component {
                     defaultValue={this.state.nFlight.price}
                     onChange={this.handleInputChange}
                   />
+                </div>
+                <div className="form-group row">
+                  <label>Aircraft</label>
+                  <select name="aircraft" onChange={this.handleInputChange}>
+                    {this.state.aircrafts.map(aircraft => (
+                      <option key={aircraft} value={aircraft}>
+                        {aircraft}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <button type="submit" className="btn btn-primary">
                   Add Flight
