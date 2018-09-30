@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import FlightResult from "./flightResult";
-import AddFlight from "./addFlight";
 
 class FlightResults extends Component {
   //I didn't use date object for simplcity reason (I was not asked to filter/sort by date)
@@ -11,7 +10,7 @@ class FlightResults extends Component {
       to: "",
       depTime: "",
       landTime: "",
-      price: 490,
+      price: 0,
       aircraft: "Boeing 737-400"
     },
     flights: [
@@ -63,43 +62,45 @@ class FlightResults extends Component {
     ]
   };
   //Don't judge me for creating to many methods in a rush pls :(
-  handleIdChange = e => {
+  handleInputChange = e => {
+    const target = e.target;
+    let value = target.type === "checkbox" ? target.checked : target.value;
+    if (target.type === "number") {
+      value = parseInt(value, 10);
+    }
+    const name = target.name;
     let nFlight = { ...this.state.nFlight };
-    console.log(e);
+    nFlight[name] = value;
+    this.setState({ nFlight: nFlight });
   };
-  handleFromChange = e => {
-    let nFlight = { ...this.state.nFlight };
-    nFlight.from = e.traget.value;
-    this.setState({ nFlight });
-  };
-  handleToChange = e => {
-    let nFlight = { ...this.state.nFlight };
-    nFlight.to = e.traget.value;
-    this.setState({ nFlight });
-  };
-  handleDepartureChange = e => {
-    let nFlight = { ...this.state.nFlight };
-    nFlight.depTime = e.traget.value;
-    this.setState({ nFlight });
-  };
-  handleLandingChange = e => {
-    let nFlight = { ...this.state.nFlight };
-    nFlight.landTime = e.traget.value;
-    this.setState({ nFlight });
-  };
-  handlePriceChange = e => {
-    let nFlight = { ...this.state.nFlight };
-    nFlight.price = e.traget.value;
-    this.setState({ nFlight });
-  };
+
   handleAddFlight = e => {
+    if (!e.target.checkValidity()) {
+      // form is invalid! so we do nothing
+      return;
+    }
     e.preventDefault();
     let flights = [...this.state.flights];
-    flights.push(this.state.nFlight);
-    this.setState({ flights });
+    const nFlight = { ...this.state.nFlight };
+    const exsits = this.state.flights.filter(
+      flight => flight.id === nFlight.id
+    );
+    if (exsits.length > 0) {
+      alert("A flight with the same id exsits");
+    } else {
+      flights.push(nFlight);
+      this.setState({ flights });
+      this.addFlightForm.reset();
+    }
   };
   getDestinations = () => {
-    let destList = [];
+    let destList = ["TEST"];
+    /*this.state.flights.map(flight => {
+      if (!destList.includes(flight.to)) {
+        destList.push(flight.to);
+      }
+    });*/
+    return destList;
   };
   render() {
     if (this.props.flights !== undefined) {
@@ -107,11 +108,15 @@ class FlightResults extends Component {
     }
     return (
       <React.Fragment>
-        <h1 className="center">Flights List:</h1>
-        <select>
-          <option value="test">Not Ready : Todo</option>
-        </select>
         <div className="container">
+          <div className="row">
+            <h1 className="center">Flights List:</h1>
+            <select className="float-right">
+              {this.getDestinations().map(flightDestination => {
+                <option value={flightDestination}>{flightDestination}</option>;
+              })}
+            </select>
+          </div>
           <div className="row">
             <div className="list-group m-1 left col-sm">
               {this.state.flights.map(result => (
@@ -119,18 +124,93 @@ class FlightResults extends Component {
               ))}
             </div>
             <div className="col-sm">
-              <AddFlight
-                onAdd={this.handleAddFlight}
-                onIdChange={this.handleIdChange}
-                onFromChange={this.handleFromChange}
-                onToChange={this.handleToChange}
-                onDepChange={this.handleDepartureChange}
-                onLandChange={this.handleLandingChange}
-                onPriceChange={this.handlePriceChange}
-                nFlight={this.state.nFlight}
+              <h2>Add Fligth</h2>
+              <form
+                ref={el => (this.addFlightForm = el)}
+                onSubmit={this.handleAddFlight}
               >
-                <h2>Add Fligth</h2>
-              </AddFlight>
+                <div className="form-group">
+                  <label>Flight Code</label>
+                  <input
+                    name="id"
+                    type="text"
+                    className="form-control"
+                    id="flightCode"
+                    placeholder="Enter flight code"
+                    required="required"
+                    defaultValue={this.state.nFlight.id}
+                    onChange={this.handleInputChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>From</label>
+                  <input
+                    name="from"
+                    type="text"
+                    className="form-control"
+                    id="from"
+                    placeholder="Enter from airport code"
+                    required="required"
+                    defaultValue={this.state.nFlight.from}
+                    onChange={this.handleInputChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>To</label>
+                  <input
+                    name="to"
+                    type="text"
+                    className="form-control"
+                    id="to"
+                    placeholder="Enter to airport code"
+                    required="required"
+                    defaultValue={this.state.nFlight.to}
+                    onChange={this.handleInputChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Departure</label>
+                  <input
+                    name="depTime"
+                    type="text"
+                    className="form-control"
+                    id="dep"
+                    placeholder="Enter departure time"
+                    required="required"
+                    defaultValue={this.state.nFlight.depTime}
+                    onChange={this.handleInputChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Landing</label>
+                  <input
+                    name="landTime"
+                    type="text"
+                    className="form-control"
+                    id="landing"
+                    placeholder="Enter landing time"
+                    required="required"
+                    defaultValue={this.state.nFlight.landTime}
+                    onChange={this.handleInputChange}
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Price(USD$)</label>
+                  <input
+                    name="price"
+                    type="number"
+                    className="form-control"
+                    id="price"
+                    placeholder="Enter price"
+                    required="required"
+                    defaultValue={this.state.nFlight.price}
+                    onChange={this.handleInputChange}
+                  />
+                </div>
+                <button type="submit" className="btn btn-primary">
+                  Add Flight
+                </button>
+              </form>
             </div>
           </div>
         </div>
