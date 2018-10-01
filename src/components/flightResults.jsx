@@ -100,19 +100,21 @@ class FlightResults extends Component {
       alert("A flight with the same id exsits");
     } else {
       flights.push(nFlight);
-      this.setState({ flights }, this.updateDestinations);
-      this.setState({
-        nFlight: {
-          id: "",
-          from: "",
-          to: "",
-          depTime: "",
-          landTime: "",
-          price: 0,
-          aircraft: "Boeing 737-400"
-        }
-      });
-      this.updateFilterFlights(nFlight);
+      this.setState({ flights }, () => this.updateFilterFlights(nFlight));
+      this.setState(
+        {
+          nFlight: {
+            id: "",
+            from: "",
+            to: "",
+            depTime: "",
+            landTime: "",
+            price: 0,
+            aircraft: "Boeing 737-400"
+          }
+        },
+        this.updateDestinations
+      );
       this.addFlightForm.reset();
     }
     return true;
@@ -122,6 +124,8 @@ class FlightResults extends Component {
       const mFlights = [...this.state.mFlights];
       mFlights.push(flight);
       this.setState({ mFlights });
+    } else {
+      this.setState({ mFlights: [...this.state.flights] });
     }
   };
   updateDestinations = () => {
