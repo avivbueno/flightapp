@@ -162,15 +162,13 @@ class FlightResults extends Component {
     return (
       <React.Fragment>
         <div className="container">
-          <div className="row">
-            <h1 className="center">Flights List:</h1>
-            <select className="float-right" onChange={this.handleFilter}>
-              {this.state.destinations.map(flightDestination => (
-                <option key={flightDestination} value={flightDestination}>
-                  {flightDestination}
-                </option>
-              ))}
-            </select>
+          <div className="row m-2">
+            <div className="col-sm">
+              <h1 className="center">Flights List:</h1>
+            </div>
+            <div className="col-sm">
+              <h1>Add Flight:</h1>
+            </div>
           </div>
           <div className="row">
             <div className="list-group m-1 left col-sm">
@@ -178,8 +176,16 @@ class FlightResults extends Component {
                 <FlightResult key={result.id} flightResult={result} />
               ))}
             </div>
+            <div className="col-m1">
+              <select className="float-right" onChange={this.handleFilter}>
+                {this.state.destinations.map(flightDestination => (
+                  <option key={flightDestination} value={flightDestination}>
+                    {flightDestination}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="col-sm">
-              <h2>Add Fligth</h2>
               <form
                 ref={el => (this.addFlightForm = el)}
                 onSubmit={this.handleAddFlight}

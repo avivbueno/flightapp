@@ -26,7 +26,6 @@ class Login extends Component {
     return (
       <div>
         <form className="form-signin">
-          <img className="mb-4" src="#" alt="" width="72" height="72" />
           <h1 className="h3 mb-3 font-weight-normal">Please sign in</h1>
           <label for="inputEmail" className="sr-only">
             Username
@@ -59,7 +58,10 @@ class Login extends Component {
           >
             Sign in
           </button>
-          <p className="mt-5 mb-3 text-muted">© {new Date().getFullYear()}</p>
+
+          <p className="mt-5 mb-3 text-muted text-center">
+            © {new Date().getFullYear()}
+          </p>
         </form>
       </div>
     );
